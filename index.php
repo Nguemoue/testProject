@@ -2,27 +2,40 @@
 
 use App\Bank;
 use App\User;
+use App\Validator;
 
+require 'vendor/autoload.php';
+$validator = new Validator();
 if (!empty($_POST)) {
-    require 'vendor/autoload.php';
     extract($_POST);
     extract($_FILES);
-    $ext = pathinfo($profile['name'], PATHINFO_EXTENSION);
-    $photo_path = uniqid() . '.' . $ext;
-    move_uploaded_file($profile['tmp_name'], './avatars/' . $photo_path);
-    $user_id = User::getInstance()->insert(compact('nom', 'photo_path', 'prenom', 'email', 'password', 'telephone', 'birthday'));
-    //j'enregistre les information bancaires a present
-    $res = Bank::getInstance()->insert([
-        'nom' => $card_nom,
-        'month_expired' => $month_expired,
-        'year_expired' => $year_expired,
-        'user_id' => $user_id,
-        'numero'=>$card_number,
-        'cvv'=>$card_cvv,
-        'card_type'=>$card_type
-    ]);
-    header('Location:list.php');
-    
+
+    // je valides mes erreurs
+    $validator->validateEmail($email);
+    $validator->validateImg($profile);
+    $validator->validateNom($nom);
+    $validator->validateNom($prenom);
+    $validator->validateTel($telephone);
+    $validator->validateCardNumber($card_number);
+    $validator->validateCvv($card_cvv);
+
+    if (!$validator->hasError()) {
+        $ext = pathinfo($profile['name'], PATHINFO_EXTENSION);
+        $photo_path = uniqid() . '.' . $ext;
+        move_uploaded_file($profile['tmp_name'], './avatars/' . $photo_path);
+        $user_id = User::getInstance()->insert(compact('nom', 'photo_path', 'prenom', 'email', 'password', 'telephone', 'birthday'));
+        //j'enregistre les information bancaires a present
+        $res = Bank::getInstance()->insert([
+            'nom' => $card_nom,
+            'month_expired' => $month_expired,
+            'year_expired' => $year_expired,
+            'user_id' => $user_id,
+            'numero' => $card_number,
+            'cvv' => $card_cvv,
+            'card_type' => $card_type
+        ]);
+        header('Location:list.php');
+    }
 }
 
 ?>
@@ -52,6 +65,14 @@ if (!empty($_POST)) {
 
 <body>
     <div class="container-fluid">
+        <?php if ($validator->hasError()) : ?>
+            <div class="alert alert-danger">
+
+                <?php foreach ($validator->getErrors() as $error) : ?>
+                    <li><?= $error ?></li>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
         <form class="form-check border p-1 mt-1" method="post" action="<?= $_SERVER['PHP_SELF'] ?>" style="box-shadow: 0px 0px 3px #ccc,1px 1px 3px #333 ;" enctype="multipart/form-data">
             <div class="row">
                 <div class="col-12 col-lg-6 col-xl-6 col-md-6 col-xs-12 col-sm-12">
@@ -108,7 +129,7 @@ if (!empty($_POST)) {
                                         <label class="form-label">Numero de telephone</label>
                                         <div class="input-group">
                                             <span class="input-group-text mdi mdi-phone"></span>
-                                            <input pattern="[+0]+[0-9]*" type="text" class="form-control" id="telephone" name="telephone" placeholder="+237 656898989" required>
+                                            <input  type="text" class="form-control" id="telephone" name="telephone" placeholder="+237 656898989" required>
                                         </div>
                                     </div>
                                     <div>
