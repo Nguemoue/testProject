@@ -1,6 +1,7 @@
 <?php 
 namespace App;
 
+use ErrorException;
 use PDOException;
 use Database\Database;
 
@@ -36,7 +37,11 @@ function insert($data):int{
     $values =  implode(" , ",$data);
     $sql = "insert into  ".$this->table." (".$keys.") values (".$values.")";
     try{
-        $result = $pdo->exec($sql);
+        if($pdo->exec($sql)){
+            $result = $pdo->lastInsertId();
+        }else{
+            throw new ErrorException("erreur d'execution du code sql");
+        }
     }catch(PDOException $e){
         return 0;
     }

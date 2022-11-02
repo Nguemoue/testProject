@@ -4,7 +4,7 @@ use App\User;
 
 require 'vendor/autoload.php';
 
-$users = User::getUser()->all();
+$users = User::getInstance()->all();
 ?>
 
 <!DOCTYPE html>
@@ -13,13 +13,13 @@ $users = User::getUser()->all();
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="public/bootsrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="public/bs/css/bs.min.css">
     <title>Listes des Utilisateurs</title>
 </head>
 <body>
     <nav class="navbar navbar-dark">
         <div>
-            <a href="#">Home</a>
+            <a href="./" class="btn btn-secondary ml-2">Home</a>
         </div>
     </nav>
     <div class="container mt-4">
@@ -27,7 +27,7 @@ $users = User::getUser()->all();
             <div class="card-header">
                 <div class="card-title">Liste des Utilisateur</div>
             </div>
-            <div class="card-footer">
+            <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
                         <thead>
@@ -36,7 +36,6 @@ $users = User::getUser()->all();
                                 <th>Nom</th>
                                 <th>Prenom</th>
                                 <th>EMail</th>
-                                <th>Numero Cvv</th>
                                 <th>Date naissance</th>
                                 <th>Telephone</th>
                                 <th>Photo</th>
@@ -49,10 +48,9 @@ $users = User::getUser()->all();
                                     <td><?=$user['nom']?></td>
                                     <td><?=$user['prenom']?></td>
                                     <td><?=$user['email']?></td>
-                                    <td><?=$user['cvv']?></td>
                                     <td><?=$user['birthday']?></td>
                                     <td><?=$user['telephone']?></td>
-                                    <td><img src="avatars/<?=$user['photo']?>" width="80"></td>
+                                    <td><img src="avatars/<?=$user['photo_path']?>" width="80"></td>
                                 </tr>
                             
                                 <?php endforeach;?>
